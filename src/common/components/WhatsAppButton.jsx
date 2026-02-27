@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { Tooltip, Zoom, Box } from '@mui/material';
 import { keyframes } from '@mui/system';
@@ -10,30 +10,30 @@ const floatSoft = keyframes`
 `;
 
 const WhatsAppButton = () => {
-
+  // Selección segura de estado Redux
   const user = useSelector((state) => state.session?.user);
   const selectedDeviceId = useSelector((state) => state.devices?.selectedId);
-  const devices = useSelector((state) => state.devices?.items);
+  const devicesState = useSelector((state) => state.devices?.items);
 
-  // Si no hay usuario logeado no mostramos el botón
+  // Si no hay usuario logeado, no renderizamos
   if (!user) return null;
 
   // Blindaje absoluto contra errores de tipo
-  const safeDevices = Array.isArray(devices)
-    ? devices
-    : Array.isArray(devices?.data)
-      ? devices.data
-      : [];
+  const devices = useMemo(() => {
+    if (Array.isArray(devicesState)) return devicesState;
+    if (Array.isArray(devicesState?.data)) return devicesState.data;
+    return [];
+  }, [devicesState]);
 
-  const selectedDevice = safeDevices.find(
-    (d) => d?.id === selectedDeviceId
-  );
-
+  // Selección segura del dispositivo
+  const selectedDevice = devices.find((d) => d?.id === selectedDeviceId);
   const deviceName = selectedDevice?.name || 'sin dispositivo seleccionado';
 
+  // Datos del usuario
   const userName = user?.name || 'Usuario';
   const userEmail = user?.email || userName;
 
+  // Mensaje codificado para WhatsApp
   const message = encodeURIComponent(
     `Hola, soy ${userName}.\n` +
     `Usuario: ${userEmail}\n` +
@@ -74,10 +74,7 @@ const WhatsAppButton = () => {
             component="img"
             src="/images/whatsapp.svg"
             alt="WhatsApp"
-            sx={{
-              width: 30,
-              height: 30
-            }}
+            sx={{ width: 30, height: 30 }}
           />
         </Box>
       </Tooltip>
