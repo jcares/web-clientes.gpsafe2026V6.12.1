@@ -11,19 +11,32 @@ const floatSoft = keyframes`
 
 const WhatsAppButton = () => {
 
-  const user = useSelector((state) => state.session.user);
-  const selectedDeviceId = useSelector((state) => state.devices.selectedId);
-  const devices = useSelector((state) => state.devices.items);
+  const user = useSelector((state) => state.session?.user);
+  const selectedDeviceId = useSelector((state) => state.devices?.selectedId);
+  const devices = useSelector((state) => state.devices?.items);
 
+  // Si no hay usuario logeado no mostramos el botón
   if (!user) return null;
 
-  const selectedDevice = devices?.find(d => d.id === selectedDeviceId);
+  // Blindaje absoluto contra errores de tipo
+  const safeDevices = Array.isArray(devices)
+    ? devices
+    : Array.isArray(devices?.data)
+      ? devices.data
+      : [];
 
-  const deviceName = selectedDevice ? selectedDevice.name : 'sin dispositivo seleccionado';
+  const selectedDevice = safeDevices.find(
+    (d) => d?.id === selectedDeviceId
+  );
+
+  const deviceName = selectedDevice?.name || 'sin dispositivo seleccionado';
+
+  const userName = user?.name || 'Usuario';
+  const userEmail = user?.email || userName;
 
   const message = encodeURIComponent(
-    `Hola, soy ${user.name}.\n` +
-    `Usuario: ${user.email || user.name}\n` +
+    `Hola, soy ${userName}.\n` +
+    `Usuario: ${userEmail}\n` +
     `Dispositivo: ${deviceName}\n` +
     `Necesito soporte GPSafe.`
   );
