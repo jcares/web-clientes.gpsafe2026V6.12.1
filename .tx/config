@@ -1,0 +1,9 @@
+[main]
+host = https://www.transifex.com
+
+[o:gpsafe:p:gpsafe-web:r:frontend]
+source_file = src/resources/l10n/es.json
+file_filter = src/resources/l10n/<lang>.json
+source_lang = es
+type = KEYVALUEJSON
+resource_name = web
