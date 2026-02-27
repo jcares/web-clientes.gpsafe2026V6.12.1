@@ -22,7 +22,7 @@ export default defineConfig(() => ({
     },
   },
   build: {
-    outDir: 'build',
+    outDir: 'web',
   },
   plugins: [
     svgr(),
