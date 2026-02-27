@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useMemo } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Paper } from '@mui/material';
 import { makeStyles } from 'tss-react/mui';
 import { useTheme } from '@mui/material/styles';
@@ -67,28 +67,18 @@ const MainPage = () => {
   const { classes } = useStyles();
   const dispatch = useDispatch();
   const theme = useTheme();
+
   const desktop = useMediaQuery(theme.breakpoints.up('md'));
+
   const mapOnSelect = useAttributePreference('mapOnSelect', true);
 
-  // 🔒 Blindaje de selectedId
-  const selectedDeviceId = useSelector(
-    (state) => state.devices?.selectedId
+  const selectedDeviceId = useSelector((state) => state.devices.selectedId);
+  const positions = useSelector((state) => state.session.positions);
+  const [filteredPositions, setFilteredPositions] = useState([]);
+  const selectedPosition = filteredPositions.find(
+    (position) => selectedDeviceId && position.deviceId === selectedDeviceId,
   );
 
-  // 🔒 Blindaje TOTAL de positions
-  const rawPositions = useSelector((state) => state.session?.positions);
-
-  const positions = useMemo(() => {
-    if (Array.isArray(rawPositions)) {
-      return rawPositions;
-    }
-    if (Array.isArray(rawPositions?.items)) {
-      return rawPositions.items;
-    }
-    return [];
-  }, [rawPositions]);
-
-  const [filteredPositions, setFilteredPositions] = useState([]);
   const [filteredDevices, setFilteredDevices] = useState([]);
 
   const [keyword, setKeyword] = useState('');
@@ -102,9 +92,7 @@ const MainPage = () => {
   const [devicesOpen, setDevicesOpen] = useState(desktop);
   const [eventsOpen, setEventsOpen] = useState(false);
 
-  const onEventsClick = useCallback(() => {
-    setEventsOpen(true);
-  }, []);
+  const onEventsClick = useCallback(() => setEventsOpen(true), [setEventsOpen]);
 
   useEffect(() => {
     if (!desktop && mapOnSelect && selectedDeviceId) {
@@ -112,7 +100,6 @@ const MainPage = () => {
     }
   }, [desktop, mapOnSelect, selectedDeviceId]);
 
-  // 🔒 useFilter siempre recibe array
   useFilter(
     keyword,
     filter,
@@ -123,17 +110,6 @@ const MainPage = () => {
     setFilteredPositions,
   );
 
-  // 🔒 Blindaje del find
-  const selectedPosition = useMemo(() => {
-    if (!Array.isArray(filteredPositions)) return null;
-
-    return filteredPositions.find(
-      (position) =>
-        selectedDeviceId &&
-        Number(position?.deviceId) === Number(selectedDeviceId)
-    );
-  }, [filteredPositions, selectedDeviceId]);
-
   return (
     <div className={classes.root}>
       {desktop && (
@@ -143,7 +119,6 @@ const MainPage = () => {
           onEventsClick={onEventsClick}
         />
       )}
-
       <div className={classes.sidebar}>
         <Paper square elevation={3} className={classes.header}>
           <MainToolbar
@@ -160,7 +135,6 @@ const MainPage = () => {
             setFilterMap={setFilterMap}
           />
         </Paper>
-
         <div className={classes.middle}>
           {!desktop && (
             <div className={classes.contentMap}>
@@ -171,28 +145,21 @@ const MainPage = () => {
               />
             </div>
           )}
-
           <Paper
             square
             className={classes.contentList}
             style={devicesOpen ? {} : { visibility: 'hidden' }}
           >
-            <DeviceList devices={filteredDevices || []} />
+            <DeviceList devices={filteredDevices} />
           </Paper>
         </div>
-
         {desktop && (
           <div className={classes.footer}>
             <BottomMenu />
           </div>
         )}
       </div>
-
-      <EventsDrawer
-        open={eventsOpen}
-        onClose={() => setEventsOpen(false)}
-      />
-
+      <EventsDrawer open={eventsOpen} onClose={() => setEventsOpen(false)} />
       {selectedDeviceId && (
         <StatusCard
           deviceId={selectedDeviceId}

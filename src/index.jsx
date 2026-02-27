@@ -1,4 +1,3 @@
-import WhatsAppButton from './common/components/WhatsAppButton';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { Provider } from 'react-redux';
@@ -29,7 +28,6 @@ root.render(
               </BrowserRouter>
               <ErrorHandler />
               <NativeInterface />
-              <WhatsAppButton />
             </ServerProvider>
           </AppThemeProvider>
         </StyledEngineProvider>
