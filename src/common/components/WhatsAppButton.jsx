@@ -10,30 +10,26 @@ const floatSoft = keyframes`
 `;
 
 const WhatsAppButton = () => {
-  // Selección segura de estado Redux
+  // 🔹 Todos los hooks primero
   const user = useSelector((state) => state.session?.user);
   const selectedDeviceId = useSelector((state) => state.devices?.selectedId);
   const devicesState = useSelector((state) => state.devices?.items);
 
-  // Si no hay usuario logeado, no renderizamos
-  if (!user) return null;
-
-  // Blindaje absoluto contra errores de tipo
   const devices = useMemo(() => {
     if (Array.isArray(devicesState)) return devicesState;
     if (Array.isArray(devicesState?.data)) return devicesState.data;
     return [];
   }, [devicesState]);
 
-  // Selección segura del dispositivo
+  // 🔹 Ahora hacemos la lógica condicional
+  if (!user) return null;
+
   const selectedDevice = devices.find((d) => d?.id === selectedDeviceId);
   const deviceName = selectedDevice?.name || 'sin dispositivo seleccionado';
 
-  // Datos del usuario
   const userName = user?.name || 'Usuario';
   const userEmail = user?.email || userName;
 
-  // Mensaje codificado para WhatsApp
   const message = encodeURIComponent(
     `Hola, soy ${userName}.\n` +
     `Usuario: ${userEmail}\n` +
