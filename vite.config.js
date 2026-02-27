@@ -10,9 +10,6 @@ const APP_TITLE = process.env.VITE_APP_TITLE || 'GPSafe';
 const APP_DESC = process.env.VITE_APP_DESC || 'Plataforma de Monitoreo';
 const APP_COLOR = process.env.VITE_APP_COLOR || '#007bff';
 
-// Ruta de salida para build
-//const OUT_DIR = path.resolve('C:/Program Files/Traccar/web');
-
 export default defineConfig(() => ({
   server: {
     port: 3000,
@@ -23,6 +20,20 @@ export default defineConfig(() => ({
   },
   build: {
     outDir: 'web',
+    chunkSizeWarningLimit: 1000, // aumenta límite a 1 MB para reducir warnings
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Librerías pesadas en chunks separados
+          'mui': ['@mui/material', '@mui/icons-material', '@mui/lab'],
+          'maplibre': ['maplibre-gl', '@maplibre/maplibre-gl-geocoder', '@mapbox/mapbox-gl-rtl-text'],
+          'recharts': ['recharts'],
+          'exceljs': ['exceljs', 'file-saver'],
+          'dayjs': ['dayjs'],
+          'qr': ['react-qr-code', '@yudiel/react-qr-scanner'],
+        },
+      },
+    },
   },
   plugins: [
     svgr(),
